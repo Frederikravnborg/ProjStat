@@ -19,9 +19,13 @@ fit <- lm(d$W ~ H); anova(fit)
 #### Goal 2 ####
 d2 <- d
 for (i in 1:dim(d)[1]){
-  if (d2$lameLeg[i] == "none"){d2$lameLeg[i] <- 0}
-  else {d2$lameLeg[i] <- 1}
+  if (d2$lameLeg[i] == "none"){d2$lameLeg[i] <- numeric(0)}
+  else {d2$lameLeg[i] <- numeric(1)}
 }
+
+plot(d2$A, d2$W, col=d2$lameLeg)
+
+d2$lameLeg
 
 # Binary classification (A/W)
 fitAW <- lm(lameLeg ~ A + W, data=d2)
