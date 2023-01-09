@@ -23,10 +23,12 @@ for (i in 1:dim(d)[1]){
   else {d2$lameLeg[i] <- 1}
 }
 
+# Binary classification (A/W)
 fitAW <- lm(lameLeg ~ A + W, data=d2)
 summary(fitAW)
 plot(fitAW)
 
+# Binary classification (PC3/PC4)
 fitPC <- lm(lameLeg ~ pc3 + pc4, data=d2)
 summary(fitPC)
 plot(fitPC)
