@@ -195,11 +195,143 @@ mean(acc)
 (cm <- table(d$lameLeg, guess))
 
 
-#### Diagonal AW ####
+#### Make Diagonal ####
+
+# Collapse diagonals in data
+d <- read.table("horse_data23.txt", header=TRUE, as.is=TRUE)
+dDia <- d
+for (i in 1:85){
+  if(dDia$lameLeg[i] == "right:fore" || dDia$lameLeg[i] == "left:hind"){
+    dDia$lameLeg[i] <- "rflh"}
+  else if (dDia$lameLeg[i] == "left:fore" || dDia$lameLeg[i] == "right:hind"){
+    dDia$lameLeg[i] <- "lfrh"}
+    }
+dDia$lameLeg <- as.factor(dDia$lameLeg)
+
+# Extract desired features
+AW <- dDia[ , c("lameLeg", "A", "W")]
+PC <- dDia[ , c("lameLeg", "pc3", "pc4")]
+AWPC <- dDia[ , c("lameLeg", "A", "W", "pc3", "pc4")]
+
+#### Diagonal A and W ####
+
+# Find optimal K
+train.control <- trainControl(method  = "LOOCV")
+(fit <- train(lameLeg~ .,
+              method     = "knn",
+              tuneGrid   = expand.grid(k = 1:20),
+              trControl  = train.control,
+              metric     = "Accuracy",
+              data       = AW))
+qplot(fit$results$k,fit$results$Accuracy,geom = "line",
+      xlab = "k", ylab = "Accuracy")
+
+n <- 85
+acc <- replicate(n, NA)
+guess = replicate(n,NA)
+for (i in 1:85){
+  # create indexes for train and test
+  testix <- replicate(n, FALSE)
+  testix[i] <- TRUE
+  trainix <- testix == FALSE
+  traincl <- AW[trainix,][,1] # train classes
+  trainD <- AW[trainix,][, 2:3]
+  testD <- AW[testix,][, 2:3]
+  classifier <- knn(train=trainD, test=testD, cl = traincl, k = 6)
+  guess[i] <- as.character(classifier)
+  acc[i] <- sum(classifier == dDia$lameLeg[i])
+}
+acc
+guess = as.factor(guess)
+mean(acc)
+(cm <- table(d$lameLeg, guess))
+
+#### Diagonal PC3 and PC4 ####
+
+# Find optimal K
+train.control <- trainControl(method  = "LOOCV")
+(fit <- train(lameLeg~ .,
+              method     = "knn",
+              tuneGrid   = expand.grid(k = 1:20),
+              trControl  = train.control,
+              metric     = "Accuracy",
+              data       = PC))
+qplot(fit$results$k,fit$results$Accuracy,geom = "line",
+      xlab = "k", ylab = "Accuracy")
+
+n <- 85
+acc <- replicate(n, NA)
+guess = replicate(n,NA)
+for (i in 1:85){
+  # create indexes for train and test
+  testix <- replicate(n, FALSE)
+  testix[i] <- TRUE
+  trainix <- testix == FALSE
+  traincl <- PC[trainix,][,1] # train classes
+  trainD <- PC[trainix,][, 2:3]
+  testD <- PC[testix,][, 2:3]
+  classifier <- knn(train=trainD, test=testD, cl = traincl, k = 5)
+  guess[i] <- as.character(classifier)
+  acc[i] <- sum(classifier == dDia$lameLeg[i])
+}
+acc
+guess = as.factor(guess)
+mean(acc)
+(cm <- table(d$lameLeg, guess))
+
+
+#### Diagonal A, W, PC3 and PC4 ####
+
+# Find optimal K
+train.control <- trainControl(method  = "LOOCV")
+(fit <- train(lameLeg~ .,
+              method     = "knn",
+              tuneGrid   = expand.grid(k = 1:20),
+              trControl  = train.control,
+              metric     = "Accuracy",
+              data       = AWPC))
+qplot(fit$results$k,fit$results$Accuracy,geom = "line",
+      xlab = "k", ylab = "Accuracy")
+
+n <- 85
+acc <- replicate(n, NA)
+guess = replicate(n,NA)
+for (i in 1:85){
+  # create indexes for train and test
+  testix <- replicate(n, FALSE)
+  testix[i] <- TRUE
+  trainix <- testix == FALSE
+  traincl <- AWPC[trainix,][,1] # train classes
+  trainD <- AWPC[trainix,][, 2:5]
+  testD <- AWPC[testix,][, 2:5]
+  classifier <- knn(train=trainD, test=testD, cl = traincl, k = 3)
+  guess[i] <- as.character(classifier)
+  acc[i] <- sum(classifier == dDia$lameLeg[i])
+}
+acc
+guess = as.factor(guess)
+mean(acc)
+(cm <- table(d$lameLeg, guess))
 
 
 
 
+
+
+
+
+
+
+#### McNemar ####
+
+# General contingency table
+(Performance <- matrix(c("f11", "f01", "f10", "f00"),
+         nrow = 2,
+         dimnames = list("1st Model" = c("Correct", "Wrong"),
+                         "2nd Model" = c("Correct", "Wrong"))))
+
+
+mcnemar.test(Performance)
 
 
 
