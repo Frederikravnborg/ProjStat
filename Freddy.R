@@ -91,7 +91,8 @@ library(caret)
 d <- read.table("horse_data23.txt", header=TRUE, as.is=TRUE)
 d$lameLeg <- as.factor(d$lameLeg)
 AW <- d[ , c("lameLeg", "A", "W")]
-PC <- d[ , c("lameLeg", "A", "W")]
+PC <- d[ , c("lameLeg", "pc3", "pc4")]
+AWPC <- d[ , c("lameLeg", "A", "W")]
 
 #### Using A and W ####
 
@@ -158,6 +159,43 @@ acc
 guess = as.factor(guess)
 mean(acc)
 (cm <- table(d$lameLeg, guess))
+
+
+#### Using A, W, PC3 and PC4 ####
+
+# Find optimal K
+train.control <- trainControl(method  = "LOOCV")
+(fit <- train(lameLeg~ .,
+              method     = "knn",
+              tuneGrid   = expand.grid(k = 1:20),
+              trControl  = train.control,
+              metric     = "Accuracy",
+              data       = PC))
+qplot(fit$results$k,fit$results$Accuracy,geom = "line",
+      xlab = "k", ylab = "Accuracy")
+
+n <- 85
+acc <- replicate(n, NA)
+guess = replicate(n,NA)
+for (i in 1:85){
+  # create indexes for train and test
+  testix <- replicate(n, FALSE)
+  testix[i] <- TRUE
+  trainix <- testix == FALSE
+  traincl <- PC[trainix,][,1] # train classes
+  trainD <- PC[trainix,][, 2:3]
+  testD <- PC[testix,][, 2:3]
+  classifier <- knn(train=trainD, test=testD, cl = traincl, k = 5)
+  guess[i] <- as.character(classifier)
+  acc[i] <- sum(classifier == d$lameLeg[i])
+}
+acc
+guess = as.factor(guess)
+mean(acc)
+(cm <- table(d$lameLeg, guess))
+
+
+
 
 
 
