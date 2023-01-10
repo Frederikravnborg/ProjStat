@@ -92,7 +92,7 @@ d <- read.table("horse_data23.txt", header=TRUE, as.is=TRUE)
 d$lameLeg <- as.factor(d$lameLeg)
 AW <- d[ , c("lameLeg", "A", "W")]
 PC <- d[ , c("lameLeg", "pc3", "pc4")]
-AWPC <- d[ , c("lameLeg", "A", "W")]
+AWPC <- d[ , c("lameLeg", "A", "W", "pc3", "pc4")]
 
 #### Using A and W ####
 
@@ -170,7 +170,7 @@ train.control <- trainControl(method  = "LOOCV")
               tuneGrid   = expand.grid(k = 1:20),
               trControl  = train.control,
               metric     = "Accuracy",
-              data       = PC))
+              data       = AWPC))
 qplot(fit$results$k,fit$results$Accuracy,geom = "line",
       xlab = "k", ylab = "Accuracy")
 
@@ -182,10 +182,10 @@ for (i in 1:85){
   testix <- replicate(n, FALSE)
   testix[i] <- TRUE
   trainix <- testix == FALSE
-  traincl <- PC[trainix,][,1] # train classes
-  trainD <- PC[trainix,][, 2:3]
-  testD <- PC[testix,][, 2:3]
-  classifier <- knn(train=trainD, test=testD, cl = traincl, k = 5)
+  traincl <- AWPC[trainix,][,1] # train classes
+  trainD <- AWPC[trainix,][, 2:5]
+  testD <- AWPC[testix,][, 2:5]
+  classifier <- knn(train=trainD, test=testD, cl = traincl, k = 3)
   guess[i] <- as.character(classifier)
   acc[i] <- sum(classifier == d$lameLeg[i])
 }
@@ -193,6 +193,12 @@ acc
 guess = as.factor(guess)
 mean(acc)
 (cm <- table(d$lameLeg, guess))
+
+
+#### Diagonal AW ####
+
+
+
 
 
 
