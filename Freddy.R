@@ -79,7 +79,7 @@ plotd$pc4 <- round(plotd$pc4,2)
 
 
 
-#### KNN ####
+#### KNN - initialize ####
 
 # Import packages
 library(e1071)
@@ -108,7 +108,7 @@ qplot(fit$results$k,fit$results$Accuracy,geom = "line",
       xlab = "k", ylab = "Accuracy")
 
 n <- 85
-acc <- replicate(n, NA)
+accAW <- replicate(n, NA)
 guess = replicate(n,NA)
 for (i in 1:85){
     # create indexes for train and test
@@ -120,11 +120,11 @@ for (i in 1:85){
     testD <- AW[testix,][, 2:3]
     classifier <- knn(train=trainD, test=testD, cl = traincl, k = 5)
     guess[i] <- as.character(classifier)
-    acc[i] <- sum(classifier == d$lameLeg[i])
+    accAW[i] <- sum(classifier == d$lameLeg[i])
 }
-acc
+accAW
 guess = as.factor(guess)
-mean(acc)
+mean(accAW)
 (cm <- table(d$lameLeg, guess))
 
 #### Using PC3 and PC4 ####
@@ -141,7 +141,7 @@ qplot(fit$results$k,fit$results$Accuracy,geom = "line",
       xlab = "k", ylab = "Accuracy")
 
 n <- 85
-acc <- replicate(n, NA)
+accPC <- replicate(n, NA)
 guess = replicate(n,NA)
 for (i in 1:85){
   # create indexes for train and test
@@ -153,11 +153,11 @@ for (i in 1:85){
   testD <- PC[testix,][, 2:3]
   classifier <- knn(train=trainD, test=testD, cl = traincl, k = 5)
   guess[i] <- as.character(classifier)
-  acc[i] <- sum(classifier == d$lameLeg[i])
+  accPC[i] <- sum(classifier == d$lameLeg[i])
 }
-acc
+accPC
 guess = as.factor(guess)
-mean(acc)
+mean(accPC)
 (cm <- table(d$lameLeg, guess))
 
 
@@ -175,7 +175,7 @@ qplot(fit$results$k,fit$results$Accuracy,geom = "line",
       xlab = "k", ylab = "Accuracy")
 
 n <- 85
-acc <- replicate(n, NA)
+accAWPC <- replicate(n, NA)
 guess = replicate(n,NA)
 for (i in 1:85){
   # create indexes for train and test
@@ -187,11 +187,11 @@ for (i in 1:85){
   testD <- AWPC[testix,][, 2:5]
   classifier <- knn(train=trainD, test=testD, cl = traincl, k = 3)
   guess[i] <- as.character(classifier)
-  acc[i] <- sum(classifier == d$lameLeg[i])
+  accAWPC[i] <- sum(classifier == d$lameLeg[i])
 }
-acc
+accAWPC
 guess = as.factor(guess)
-mean(acc)
+mean(accAWPC)
 (cm <- table(d$lameLeg, guess))
 
 
@@ -227,7 +227,7 @@ qplot(fit$results$k,fit$results$Accuracy,geom = "line",
       xlab = "k", ylab = "Accuracy")
 
 n <- 85
-acc <- replicate(n, NA)
+accDAW <- replicate(n, NA)
 guess = replicate(n,NA)
 for (i in 1:85){
   # create indexes for train and test
@@ -239,11 +239,11 @@ for (i in 1:85){
   testD <- AW[testix,][, 2:3]
   classifier <- knn(train=trainD, test=testD, cl = traincl, k = 6)
   guess[i] <- as.character(classifier)
-  acc[i] <- sum(classifier == dDia$lameLeg[i])
+  accDAW[i] <- sum(classifier == dDia$lameLeg[i])
 }
-acc
+accDAW
 guess = as.factor(guess)
-mean(acc)
+mean(accDAW)
 (cm <- table(d$lameLeg, guess))
 
 #### Diagonal PC3 and PC4 ####
@@ -260,7 +260,7 @@ qplot(fit$results$k,fit$results$Accuracy,geom = "line",
       xlab = "k", ylab = "Accuracy")
 
 n <- 85
-acc <- replicate(n, NA)
+accDPC <- replicate(n, NA)
 guess = replicate(n,NA)
 for (i in 1:85){
   # create indexes for train and test
@@ -272,11 +272,11 @@ for (i in 1:85){
   testD <- PC[testix,][, 2:3]
   classifier <- knn(train=trainD, test=testD, cl = traincl, k = 5)
   guess[i] <- as.character(classifier)
-  acc[i] <- sum(classifier == dDia$lameLeg[i])
+  accDPC[i] <- sum(classifier == dDia$lameLeg[i])
 }
-acc
+accDPC
 guess = as.factor(guess)
-mean(acc)
+mean(accDPC)
 (cm <- table(d$lameLeg, guess))
 
 
@@ -294,7 +294,7 @@ qplot(fit$results$k,fit$results$Accuracy,geom = "line",
       xlab = "k", ylab = "Accuracy")
 
 n <- 85
-acc <- replicate(n, NA)
+accDAWPC <- replicate(n, NA)
 guess = replicate(n,NA)
 for (i in 1:85){
   # create indexes for train and test
@@ -306,11 +306,11 @@ for (i in 1:85){
   testD <- AWPC[testix,][, 2:5]
   classifier <- knn(train=trainD, test=testD, cl = traincl, k = 3)
   guess[i] <- as.character(classifier)
-  acc[i] <- sum(classifier == dDia$lameLeg[i])
+  accDAWPC[i] <- sum(classifier == dDia$lameLeg[i])
 }
-acc
+accDAWPC
 guess = as.factor(guess)
-mean(acc)
+mean(accDAWPC)
 (cm <- table(d$lameLeg, guess))
 
 
@@ -330,8 +330,38 @@ mean(acc)
          dimnames = list("1st Model" = c("Correct", "Wrong"),
                          "2nd Model" = c("Correct", "Wrong"))))
 
+accAW
+accPC
+accAWPC
+accDAW
+accDPC
+accDAWPC
 
-mcnemar.test(Performance)
+# function to create f11, f01, f10, f00
+f <- function(x,y){
+  f11 <- 0; f01 <- 0; f10 <- 0; f00 <- 0;
+  for (i in 1:length(x)){
+    if      (x[i] == 1 & y[i] == 1){f11 <- f11+1}
+    else if (x[i] == 0 & y[i] == 1){f01 <- f01+1}
+    else if (x[i] == 1 & y[i] == 0){f10 <- f10+1}
+    else if (x[i] == 0 & y[i] == 0){f00 <- f00+1}}
+  matrix(c(f11, f01, f10, f00),
+         nrow = 2,
+         dimnames = list("1st Model" = c("Correct", "Wrong"),
+                         "2nd Model" = c("Correct", "Wrong")))}
+
+A <- cbind(accAW,accPC,accAWPC,accDAW,accDPC,accDAWPC)
+colnames(A) <- c("AW","PC","AWPC","DAW","DPC","DAWPC") 
+
+(mcMat <- data.frame(matrix(ncol = 6, nrow = 6)))
+for (i in 1:6){
+  for (j in i:6){ if(i != j){
+    mcMat[i,j] <- mcnemar.test(f(A[,i], A[,j]))[3]
+  }}
+}
+mcMat
+
+(pval <- mcnemar.test(f(accAW, accPC))[3])
 
 
 
