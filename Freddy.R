@@ -139,13 +139,9 @@ trainD <- AW[trainix,]
 testD <- AW[testix,]
 
 # Feature Scaling
-
 train_scale <- scale(trainD[, 2:3])
 test_scale <- scale(matrix(c(-0.002303542, -0.0138837),nrow=1))
-classifier <- knn(train = train_scale,
-test = test_scale,
-cl = trainD$lameLeg,
-k = 6)
+classifier <- knn(train_scale, testD, cl = trainD$lameLeg, k = 6)
 
 
 
