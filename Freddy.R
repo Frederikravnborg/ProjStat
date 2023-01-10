@@ -80,75 +80,84 @@ plotd$pc4 <- round(plotd$pc4,2)
 
 
 #### KNN ####
+
+# Import packages
 library(e1071)
 library(caTools)
 library(class)
 library(caret)
+
+# Define data
+d <- read.table("horse_data23.txt", header=TRUE, as.is=TRUE)
 d$lameLeg <- as.factor(d$lameLeg)
+AW <- d[ , c("lameLeg", "A", "W")]
+PC <- d[ , c("lameLeg", "A", "W")]
 
-# Splitting data into train
-# and test data
-AW <- d[ , c("lameLeg", "A", "W")]  
-split <- sample.split(AW, SplitRatio = 0.75)
-train_cl <- subset(AW, split == "TRUE")
-test_cl <- subset(AW, split == "FALSE")
+#### Using A and W ####
 
-# Feature Scaling
-train_scale <- scale(train_cl[, 2:3])
-test_scale <- scale(test_cl[, 2:3])
-
-# Fitting KNN Model 
-# to training dataset
-classifier_knn <- function(kval){knn(train = train_scale,
-                      test = test_scale,
-                      cl = train_cl$lameLeg,
-                      k = kval)}
-classifier_knn(3)
-
-
-# Confusion Matrix
-(cm <- table(test_cl$lameLeg, classifier_knn(4)))
-
-accK <- replicate(20, NA)
-for (k in 1:20){
-  accK[k] <- mean(classifier_knn(k) == test_cl$lameLeg)
-  }
-which.max(accK) # K=5 is optimal when using 75% train
-
-
-
+# Find optimal K
 train.control <- trainControl(method  = "LOOCV")
-
-fit <- train(lameLeg~ .,
+(fit <- train(lameLeg~ .,
              method     = "knn",
              tuneGrid   = expand.grid(k = 1:20),
              trControl  = train.control,
              metric     = "Accuracy",
-             data       = AW)
-fit
+             data       = AW))
 qplot(fit$results$k,fit$results$Accuracy,geom = "line",
       xlab = "k", ylab = "Accuracy")
 
 n <- 85
-i <- 1
+acc <- replicate(n, NA)
+guess = replicate(n,NA)
+for (i in 1:85){
+    # create indexes for train and test
+    testix <- replicate(n, FALSE)
+    testix[i] <- TRUE
+    trainix <- testix == FALSE
+    traincl <- AW[trainix,][,1] # train classes
+    trainD <- AW[trainix,][, 2:3]
+    testD <- AW[testix,][, 2:3]
+    classifier <- knn(train=trainD, test=testD, cl = traincl, k = 5)
+    guess[i] <- as.character(classifier)
+    acc[i] <- sum(classifier == d$lameLeg[i])
+}
+acc
+guess = as.factor(guess)
+mean(acc)
+(cm <- table(d$lameLeg, guess))
 
-testix <- replicate(n, FALSE)
-testix[i] <- TRUE
-trainix <- testix == FALSE
-trainD <- AW[trainix,]
-testD <- AW[testix,]
+#### Using PC3 and PC4 ####
 
-# Feature Scaling
-train_scale <- scale(trainD[, 2:3])
-test_scale <- scale(testD[, 2:3])
-classifier <- knn(train=train_scale, test=test_scale, cl = trainD$lameLeg, k = 6)
+# Find optimal K
+train.control <- trainControl(method  = "LOOCV")
+(fit <- train(lameLeg~ .,
+              method     = "knn",
+              tuneGrid   = expand.grid(k = 1:20),
+              trControl  = train.control,
+              metric     = "Accuracy",
+              data       = PC))
+qplot(fit$results$k,fit$results$Accuracy,geom = "line",
+      xlab = "k", ylab = "Accuracy")
 
-(classifier == testD$lameLeg)
-length(classifier)
-
-
-
-
+n <- 85
+acc <- replicate(n, NA)
+guess = replicate(n,NA)
+for (i in 1:85){
+  # create indexes for train and test
+  testix <- replicate(n, FALSE)
+  testix[i] <- TRUE
+  trainix <- testix == FALSE
+  traincl <- PC[trainix,][,1] # train classes
+  trainD <- PC[trainix,][, 2:3]
+  testD <- PC[testix,][, 2:3]
+  classifier <- knn(train=trainD, test=testD, cl = traincl, k = 5)
+  guess[i] <- as.character(classifier)
+  acc[i] <- sum(classifier == d$lameLeg[i])
+}
+acc
+guess = as.factor(guess)
+mean(acc)
+(cm <- table(d$lameLeg, guess))
 
 
 
