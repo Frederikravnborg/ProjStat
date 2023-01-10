@@ -19,12 +19,12 @@ fit <- lm(d$W ~ H); anova(fit)
 #### Goal 2 ####
 d2 <- d
 for (i in 1:dim(d)[1]){
-  if (d2$lameLeg[i] == "none"){d2$lameLeg[i] <- numeric(0)}
-  else {d2$lameLeg[i] <- numeric(1)}
+  if (d2$lameLeg[i] == "none"){d2$lameLeg[i] <- (0)}
+  else {d2$lameLeg[i] <- (1)}
 }
 
-plot(d2$A, d2$W, col=d2$lameLeg)
-
+plot(d2$A, d2$W, col=as.factor(d2$lameLeg))
+plot(d2$pc3, d2$pc4, col=as.factor(d2$lameLeg))
 d2$lameLeg
 
 # Binary classification (A/W)
@@ -76,4 +76,62 @@ plotd$pc4 <- round(plotd$pc4,2)
 (nLame <- dim( (subset(d2, lameLeg == 1)) )[1])
 (nNone <- dim( (subset(d2, lameLeg == 0)) )[1])
 (ratio <- nLame / (nLame+nNone))
+
+
+
+#### KNN ####
+library(e1071)
+library(caTools)
+library(class)
+d$lameLeg <- as.factor(d$lameLeg)
+
+# Splitting data into train
+# and test data
+AW <- d[ , c("lameLeg", "A", "W")]  
+split <- sample.split(AW, SplitRatio = 0.75)
+train_cl <- subset(AW, split == "TRUE")
+test_cl <- subset(AW, split == "FALSE")
+
+# Feature Scaling
+train_scale <- scale(train_cl[, 2:3])
+test_scale <- scale(test_cl[, 2:3])
+
+# Fitting KNN Model 
+# to training dataset
+classifier_knn <- function(kval){knn(train = train_scale,
+                      test = test_scale,
+                      cl = train_cl$lameLeg,
+                      k = kval)}
+classifier_knn(1)
+
+# Confusion Matrix
+(cm <- table(test_cl$lameLeg, classifier_knn))
+
+(misClassError <- mean(classifier_knn(2) != test_cl$lameLeg))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
