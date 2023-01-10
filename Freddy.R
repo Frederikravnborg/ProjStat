@@ -83,6 +83,7 @@ plotd$pc4 <- round(plotd$pc4,2)
 library(e1071)
 library(caTools)
 library(class)
+library(caret)
 d$lameLeg <- as.factor(d$lameLeg)
 
 # Splitting data into train
@@ -102,30 +103,49 @@ classifier_knn <- function(kval){knn(train = train_scale,
                       test = test_scale,
                       cl = train_cl$lameLeg,
                       k = kval)}
-classifier_knn(1)
+classifier_knn(3)
+
 
 # Confusion Matrix
-(cm <- table(test_cl$lameLeg, classifier_knn))
+(cm <- table(test_cl$lameLeg, classifier_knn(4)))
 
-(misClassError <- mean(classifier_knn(2) != test_cl$lameLeg))
-
-
-
-
-
-
+accK <- replicate(20, NA)
+for (k in 1:20){
+  accK[k] <- mean(classifier_knn(k) == test_cl$lameLeg)
+  }
+which.max(accK) # K=5 is optimal when using 75% train
 
 
 
+train.control <- trainControl(method  = "LOOCV")
 
+fit <- train(lameLeg~ .,
+             method     = "knn",
+             tuneGrid   = expand.grid(k = 1:20),
+             trControl  = train.control,
+             metric     = "Accuracy",
+             data       = AW)
+fit
+qplot(fit$results$k,fit$results$Accuracy,geom = "line",
+      xlab = "k", ylab = "Accuracy")
 
+n <- 85
+i <- 1
 
+testix <- replicate(n, FALSE)
+testix[i] <- TRUE
+trainix <- testix == FALSE
+trainD <- AW[trainix,]
+testD <- AW[testix,]
 
+# Feature Scaling
 
-
-
-
-
+train_scale <- scale(trainD[, 2:3])
+test_scale <- scale(matrix(c(-0.002303542, -0.0138837),nrow=1))
+classifier <- knn(train = train_scale,
+test = test_scale,
+cl = trainD$lameLeg,
+k = 6)
 
 
 
