@@ -351,16 +351,16 @@ f <- function(x,y){
                          "2nd Model" = c("Correct", "Wrong")))}
 
 A <- cbind(accAW,accPC,accAWPC,accDAW,accDPC,accDAWPC)
-colnames(A) <- c("AW","PC","AWPC","DAW","DPC","DAWPC") 
 
 (mcMat <- data.frame(matrix(ncol = 6, nrow = 6)))
+colnames(mcMat) <- c("AW","PC","AWPC","DAW","DPC","DAWPC")
 for (i in 1:6){
   for (j in i:6){ if(i != j){
     mcMat[i,j] <- mcnemar.test(f(A[,i], A[,j]))[3]
   }}
 }
-mcMat
-
+signif(mcMat,2)
+round(mcMat,4)
 (pval <- mcnemar.test(f(accAW, accPC))[3])
 
 
