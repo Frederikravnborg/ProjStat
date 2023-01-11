@@ -124,17 +124,4 @@ for i in range(len(data["A"])):
 res = y == preds
 res = res*1
 print(res)
-print(np.mean(res))
-
-#%%
-results.append(res)
-
-#%%
-np.savetxt("CT_res.csv", 
-           results,
-           delimiter =", ", 
-           fmt ='% s')
-
-
-
-# %%
+print(sum(res))
