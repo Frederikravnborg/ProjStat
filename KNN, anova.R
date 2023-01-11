@@ -363,7 +363,7 @@ signif(mcMat,2)
 round(mcMat,4)
 (pval <- mcnemar.test(f(accAW, accPC))[3])
 
-
+p.adjust()
 
 
 
