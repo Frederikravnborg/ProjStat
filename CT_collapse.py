@@ -15,10 +15,21 @@ results = []
 #%%
 data = pd.read_table("horse_data23.txt", header = 0)
 
+lLeg = np.array(data["lameLeg"])
+for i in range(1, len(lLeg)):
+    if lLeg[i] == "right:fore" or lLeg[i] == "left:hind":
+        lLeg[i] = "rflh"
+
+    elif lLeg[i] == "left:fore" or lLeg[i] == "right:hind":
+        lLeg[i] = "lfrh"
+
+#%%
+
 #X = pd.DataFrame((data["A"], data["W"]))
 #X = pd.DataFrame((data["pc3"], data["pc4"]))
 X = pd.DataFrame((data["A"], data["W"], data["pc3"], data["pc4"]))
-y = pd.factorize(data["lameLeg"])
+y = pd.factorize(lLeg)
+print(y)
 
 X = np.array(X)
 y = np.array(y[0])
@@ -93,7 +104,7 @@ plt.title('Accuracy vs alpha')
 plt.show()
 
 #%%
-b_model = tree.DecisionTreeClassifier(random_state=0, ccp_alpha=0.07)
+b_model = tree.DecisionTreeClassifier(random_state=0, ccp_alpha=0.05)
 b_fit = b_model.fit(X_train, y_train)
 tree.plot_tree(b_fit)
 
@@ -124,9 +135,13 @@ for i in range(len(data["A"])):
 res = y == preds
 res = res*1
 print(res)
-print(sum(res))
+print(np.mean(res))
 
 #%%
 results.append(res)
 
 #%%
+np.savetxt("CT_collapsed_res.csv", 
+           results,
+           delimiter =", ", 
+           fmt ='% s')
