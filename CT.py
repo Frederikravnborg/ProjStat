@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 #%%
 data = pd.read_table("horse_data23.txt", header = 0)
 
-X = pd.DataFrame((A, W))
+X = pd.DataFrame((data["A"], data["W"]))
 y = pd.factorize(data["lameLeg"])
 
 X = np.array(X)
