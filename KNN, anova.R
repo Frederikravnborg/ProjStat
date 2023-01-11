@@ -330,12 +330,7 @@ mean(accDAWPC)
          dimnames = list("1st Model" = c("Correct", "Wrong"),
                          "2nd Model" = c("Correct", "Wrong"))))
 
-accAW
-accPC
-accAWPC
-accDAW
-accDPC
-accDAWPC
+
 
 # function to create f11, f01, f10, f00
 f <- function(x,y){
@@ -388,6 +383,7 @@ for (i in 7:12){
   }}
 }
 mcNemar_pvalues_Tree <- mcMat
+signif(mcNemar_pvalues_Tree,2)
 
 #### McNemar both models ####
 # With p-adjustment (just Tree)
@@ -399,5 +395,13 @@ for (i in 1:12){
   }}
 }
 mcNemar_pvalues_Both <- mcMat
+signif(mcNemar_pvalues_Both,2)
+
+library(MASS)
+write.matrix(mcNemar_pvalues_Both,file="mcNemar_pvalues_Both.csv")
+write.matrix(mcNemar_pvalues_Tree,file="mcNemar_pvalues_Tree.csv")
+
+
+
 
 
