@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import csv
 
 results = []
+alphas = []
 
 
 
@@ -104,7 +105,8 @@ plt.title('Accuracy vs alpha')
 plt.show()
 
 #%%
-b_model = tree.DecisionTreeClassifier(random_state=0, ccp_alpha=0.05)
+chosen_alpha = 0.025
+b_model = tree.DecisionTreeClassifier(random_state=0, ccp_alpha=chosen_alpha)
 b_fit = b_model.fit(X_train, y_train)
 tree.plot_tree(b_fit)
 
@@ -139,6 +141,7 @@ print(np.mean(res))
 
 #%%
 results.append(res)
+alphas.append(chosen_alpha)
 
 #%%
 np.savetxt("CT_collapsed_res.csv", 
