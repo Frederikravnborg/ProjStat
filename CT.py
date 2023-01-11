@@ -6,19 +6,25 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score,confusion_matrix
 from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
 import matplotlib.pyplot as plt
+import csv
+
+results = []
+
 
 
 #%%
 data = pd.read_table("horse_data23.txt", header = 0)
 
-X = pd.DataFrame((data["A"], data["W"]))
+#X = pd.DataFrame((data["A"], data["W"]))
+#X = pd.DataFrame((data["pc3"], data["pc4"]))
+X = pd.DataFrame((data["A"], data["W"], data["pc3"], data["pc4"]))
 y = pd.factorize(data["lameLeg"])
 
 X = np.array(X)
 y = np.array(y[0])
 
 #%%
-X_train, X_test, y_train, y_test = train_test_split(X.T, y, test_size = 0.25, random_state = 42)
+X_train, X_test, y_train, y_test = train_test_split(X.T, y, test_size = 0.1, random_state = 42)
 
 params = {'max_depth': [2,4,6,8,10,12],
          'min_samples_split': [2,3,4,5,6,7,8],
@@ -87,7 +93,7 @@ plt.title('Accuracy vs alpha')
 plt.show()
 
 #%%
-b_model = tree.DecisionTreeClassifier(random_state=0, ccp_alpha=0.06)
+b_model = tree.DecisionTreeClassifier(random_state=0, ccp_alpha=0.07)
 b_fit = b_model.fit(X_train, y_train)
 tree.plot_tree(b_fit)
 
@@ -118,4 +124,17 @@ for i in range(len(data["A"])):
 res = y == preds
 res = res*1
 print(res)
-print(sum(res))
+print(np.mean(res))
+
+#%%
+results.append(res)
+
+#%%
+np.savetxt("CT_res.csv", 
+           results,
+           delimiter =", ", 
+           fmt ='% s')
+
+
+
+# %%
