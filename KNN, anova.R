@@ -386,14 +386,18 @@ mcNemar_pvalues_Tree <- mcMat
 signif(mcNemar_pvalues_Tree,2)
 
 #### McNemar both models ####
-# With p-adjustment (just Tree)
+# With p-adjustment
 (mcMat <- data.frame(matrix(ncol = 12, nrow = 12)))
 colnames(mcMat) <- c("kAW","kPC","kAWPC","kDAW","kDPC","kDAWPC","tAW","tPC","tAWPC","tDAW","tDPC","tDAWPC")
 for (i in 1:12){
   for (j in i:12){ if(i != j){
-    mcMat[i,j] <- p.adjust(mcnemar.test(f(A[,i], A[,j]))[3], method="BH", n=11)
+    mcMat[i,j] <- mcnemar.test(f(A[,i], A[,j]))[3]
   }}
 }
+p.adjust(mcMat)
+matrix(p.adjust(as.vector(mcMat)), method="BH", n=12)
+length(as.vector(mcMat))
+
 mcNemar_pvalues_Both <- mcMat
 signif(mcNemar_pvalues_Both,2)
 
