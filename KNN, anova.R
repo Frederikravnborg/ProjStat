@@ -1,4 +1,4 @@
-setwd("/Users/frederikravnborg/Library/CloudStorage/OneDrive-DanmarksTekniskeUniversitet/DTU-Frederik’s MacBook Pro/ProjStat/Project, Group")
+setwd("/Users/frederikravnborg/Library/CloudStorage/OneDrive-DanmarksTekniskeUniversitet/DTU-Frederik’s MacBook Pro/ProjStat/Project, Group/ProjStat")
 (d <- read.table("horse_data23.txt", header=TRUE, as.is=TRUE))
 
 #### Initial Plots ####
@@ -352,6 +352,7 @@ f <- function(x,y){
 
 A <- cbind(accAW,accPC,accAWPC,accDAW,accDPC,accDAWPC)
 
+# Uden adjustment
 (mcMat <- data.frame(matrix(ncol = 6, nrow = 6)))
 colnames(mcMat) <- c("AW","PC","AWPC","DAW","DPC","DAWPC")
 for (i in 1:6){
@@ -361,9 +362,42 @@ for (i in 1:6){
 }
 signif(mcMat,2)
 round(mcMat,4)
-(pval <- mcnemar.test(f(accAW, accPC))[3])
+ 
+# Med adjustment
+(mcMat <- data.frame(matrix(ncol = 6, nrow = 6)))
+colnames(mcMat) <- c("AW","PC","AWPC","DAW","DPC","DAWPC")
+for (i in 1:6){
+  for (j in i:6){ if(i != j){
+    mcMat[i,j] <- p.adjust(mcnemar.test(f(A[,i], A[,j]))[3], method="BH", n=5)
+  }}
+}
+mcMat
 
-p.adjust()
 
+#### McNemar Decision Tree ####
+(CT <- t(read.table("CT_res.csv", sep=",", header = FALSE)))
+(CTD <- t(read.table("CT_collapsed_res.csv", sep=",", header = FALSE)))
+A <- cbind(accAW,accPC,accAWPC,accDAW,accDPC,accDAWPC, CT[,1], CT[,2], CT[,3], CTD[,1], CTD[,2], CTD[,3])
+
+# With p-adjustment (just Tree)
+(mcMat <- data.frame(matrix(ncol = 6, nrow = 6)))
+colnames(mcMat) <- c("AW","PC","AWPC","DAW","DPC","DAWPC")
+for (i in 7:12){
+  for (j in i:12){ if(i != j){
+    mcMat[i-6,j-6] <- p.adjust(mcnemar.test(f(A[,i], A[,j]))[3], method="BH", n=5)
+  }}
+}
+mcNemar_pvalues_Tree <- mcMat
+
+#### McNemar both models ####
+# With p-adjustment (just Tree)
+(mcMat <- data.frame(matrix(ncol = 12, nrow = 12)))
+colnames(mcMat) <- c("kAW","kPC","kAWPC","kDAW","kDPC","kDAWPC","tAW","tPC","tAWPC","tDAW","tDPC","tDAWPC")
+for (i in 1:12){
+  for (j in i:12){ if(i != j){
+    mcMat[i,j] <- p.adjust(mcnemar.test(f(A[,i], A[,j]))[3], method="BH", n=11)
+  }}
+}
+mcNemar_pvalues_Both <- mcMat
 
 
