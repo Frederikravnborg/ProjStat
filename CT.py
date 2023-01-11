@@ -119,3 +119,4 @@ res = y == preds
 res = res*1
 print(res)
 print(sum(res))
+# %%
