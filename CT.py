@@ -99,10 +99,10 @@ cm = confusion_matrix(y_pred, y_test)
 print(cm)
 
 #%%
-preds = np.zeros(len(A))
+preds = np.zeros(len(data["A"]))
 
-for i in range(len(A)):
-    indices = np.zeros(len(A))
+for i in range(len(data["A"])):
+    indices = np.zeros(len(data["A"]))
     indices[i] = 1
 
     X_train = np.transpose(X)[indices == 0]
