@@ -15,5 +15,3 @@ legend("topleft", legend = c("left:fore", "left:hind", "none", "right:fore", "ri
 #Correlation of PC3-PC4
 plot(data$pc3, data$pc4, col = data$lameLeg, main = "Correlation of PC3 and PC4", xlab = "PC3", ylab = "PC4")
 legend("topleft", legend = c("left:fore", "left:hind", "none", "right:fore", "right:hind"),fill=c(1,2,3,4,5))
-
-
