@@ -2,9 +2,8 @@
 import numpy as np
 import pandas as pd
 from sklearn import tree
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score,confusion_matrix
-from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
+from sklearn.model_selection import GridSearchCV
 import matplotlib.pyplot as plt
 
 results = []
@@ -17,16 +16,17 @@ params = {'max_depth': [2,4,6,8,10,12,14,16],
 #%%
 data = pd.read_table("horse_data23.txt", header = 0)
 
-X = pd.DataFrame((data["A"], data["W"]))
+X = pd.DataFrame((data["pc3"], data["pc4"]))
 horse = pd.factorize(data["horse"])
 y = pd.factorize(data["lameLeg"])
+print(y)
 
 X = np.array(X)
 horse = np.array(horse[0])
 y = np.array(y[0])
 
 #%%
-i = 0
+i = 2
 indices = np.zeros(len(y))
 
 for x in range(len(horse)):
@@ -54,11 +54,12 @@ print(gcv.best_estimator_)
 print(gcv.best_params_)
 
 #%%
-bdepth = 4
-bleaf = 6
-bsplit = 2
+bdepth = 6
+bleaf = 2
+bsplit = 7
 
 #%%
+model = tree.DecisionTreeClassifier(random_state=0, max_depth=bdepth, min_samples_leaf= bleaf, min_samples_split = bsplit)
 path = model.cost_complexity_pruning_path(X_train, y_train)
 ccp_alphas, impurities = path.ccp_alphas, path.impurities
 clfs = []
@@ -66,7 +67,7 @@ clfs = []
 print(ccp_alphas)
 
 for ccp_alpha in ccp_alphas:
-    clf = tree.DecisionTreeClassifier(random_state=0, ccp_alpha=ccp_alpha, max_depth = bdepth, min_samples_leaf = bleaf, min_samples_split = bsplit)
+    clf = tree.DecisionTreeClassifier(random_state=0, ccp_alpha=ccp_alpha, max_depth=bdepth, min_samples_leaf= bleaf, min_samples_split = bsplit)
     clf.fit(X_train, y_train)
     clfs.append(clf)
 clfs = clfs[:-1]
@@ -90,7 +91,7 @@ plt.show()
 
 
 #%%
-chosen_alpha = 0.07
+chosen_alpha = 0.1
 b_model = tree.DecisionTreeClassifier(random_state=0, ccp_alpha=chosen_alpha, max_depth=bdepth, min_samples_leaf= bleaf, min_samples_split = bsplit)
 b_fit = b_model.fit(X_train, y_train)
 tree.plot_tree(b_fit)
@@ -110,7 +111,6 @@ print(cm)
 
 #%%
 preds = []
-
 for i in range(8):
     indices = np.zeros(len(y))
     for x in range(len(horse)):
@@ -127,9 +127,12 @@ for i in range(8):
 #%%
 #print(preds)
 
-flat_list = [item for sublist in preds for item in sublist]
-print(flat_list)
-print(y)
-res = y == flat_list
-print(res)
+flat = np.array(preds)
+flat.flatten()
+print(flat)
+#print(flat_list)
+#print(y)
+res = y == flat
+print(res*1)
 print(np.mean(res) * 100)
+# %%
