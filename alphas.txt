@@ -1,0 +1,9 @@
+Without collapsing
+A/W 0.04 0.776
+PC3/PC4 0.1 0.6
+A/W/PC3/PC4 0.06 0.671
+
+With collapsing
+A/W 0.1 0.859
+PC3/PC4 0.11 0.882
+A/W/PC3/PC4 0.025 0.894
