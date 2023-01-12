@@ -6,27 +6,41 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score,confusion_matrix
 from sklearn.model_selection import RandomizedSearchCV, GridSearchCV
 import matplotlib.pyplot as plt
-import csv
 
 results = []
-
-
-
+alphas = []
 #%%
 data = pd.read_table("horse_data23.txt", header = 0)
 
-#X = pd.DataFrame((data["A"], data["W"]))
+X = pd.DataFrame((data["A"], data["W"]))
 #X = pd.DataFrame((data["pc3"], data["pc4"]))
-X = pd.DataFrame((data["A"], data["W"], data["pc3"], data["pc4"]))
-y = pd.factorize(data["lameLeg"])
+#X = pd.DataFrame((data["A"], data["W"], data["pc3"], data["pc4"]))
 
-X = np.array(X)
+y = pd.factorize(data["lameLeg"])
+horse = pd.factorize(data["horse"])
+horse = np.array(horse[0])
 y = np.array(y[0])
 
-#%%
-X_train, X_test, y_train, y_test = train_test_split(X.T, y, test_size = 0.1, random_state = 42)
+print(y, horse)
 
-params = {'max_depth': [2,4,6,8,10,12],
+X = np.array(X)
+#%%
+indices = np.zeros(len(y))
+i = 4
+
+horses = ["B1", "B2", "B3", "B4", "B5", "B6", "B7", "B9"]
+
+for x in range(len(horse)):
+    if horse[x] == i:
+        indices[x] = 1
+print(indices)
+X_train = np.transpose(X)[indices == 0]
+X_test = np.transpose(X)[indices != 0]
+
+y_train = np.transpose(y)[indices == 0]
+y_test = np.transpose(y)[indices != 0]
+
+params = {'max_depth': [2,4,6,8,10,12,14,16],
          'min_samples_split': [2,3,4,5,6,7,8],
          'min_samples_leaf': [1,2,3,4,5,6,7]}
 
@@ -49,9 +63,9 @@ pred = fit.predict(X_test)
 print(f'Test score {accuracy_score(pred,y_test)}')
 cm = confusion_matrix(y_test, pred)
 print(cm)
-
 #%%
 # Post-pruning
+clf = tree.DecisionTreeClassifier(random_state=0)
 path = clf.cost_complexity_pruning_path(X_train, y_train)
 ccp_alphas, impurities = path.ccp_alphas, path.impurities
 clfs = []
@@ -61,7 +75,7 @@ print(ccp_alphas)
 for ccp_alpha in ccp_alphas:
     clf = tree.DecisionTreeClassifier(random_state=0, ccp_alpha=ccp_alpha)
     clf.fit(X_train, y_train)
-    clfs.append(clf)
+    clfs.append(model)
 
 #%%
 clfs = clfs[:-1]
@@ -93,7 +107,8 @@ plt.title('Accuracy vs alpha')
 plt.show()
 
 #%%
-b_model = tree.DecisionTreeClassifier(random_state=0, ccp_alpha=0.07)
+chosen_alpha = 0.125
+b_model = tree.DecisionTreeClassifier(random_state=0, ccp_alpha=chosen_alpha)
 b_fit = b_model.fit(X_train, y_train)
 tree.plot_tree(b_fit)
 
@@ -105,28 +120,40 @@ cm = confusion_matrix(y_pred, y_test)
 print(cm)
 
 #%%
-preds = np.zeros(len(data["A"]))
+#preds = np.zeros([len(data["A"]), 26])
+preds = []
 
-for i in range(len(data["A"])):
-    indices = np.zeros(len(data["A"]))
-    indices[i] = 1
-
+for i in range(5):
+    indices = np.zeros(len(y))
+    for x in range(len(y)):
+        if i == y[x]:
+            indices[x] = 1
     X_train = np.transpose(X)[indices == 0]
     X_test = np.transpose(X)[indices != 0]
 
     y_train = np.transpose(y)[indices == 0]
     y_test = np.transpose(y)[indices != 0]
-
+    print(sum(indices))
     fit = b_model.fit(X_train, y_train)
-    preds[i] = fit.predict(X_test.reshape(1,-1))
+    preds.append(fit.predict(X_test))
 
 #%%
-res = y == preds
+flat_list = [item for sublist in preds for item in sublist]
+print(flat_list)
+print(y)
+#%%
+res = y == flat_list
 res = res*1
 print(res)
-print(sum(res))
+print(np.mean(res))
 
 #%%
 results.append(res)
+alphas.append(chosen_alpha)
 
 #%%
+np.savetxt("CT_res.csv", 
+           results,
+           delimiter =", ", 
+           fmt ='% s')
+# %%
