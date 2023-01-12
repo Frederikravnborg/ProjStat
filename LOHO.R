@@ -222,6 +222,58 @@ for (i in 1:6){
 mcNemar_pvalues_KNN <- mcMat
 signif(mcNemar_pvalues_KNN,3)
 
+#### McNemar Decision Tree ####
+(CT <- t(read.table("CT_res.csv", sep=",", header = FALSE)))
+(CTD <- t(read.table("CT_collapsed_res.csv", sep=",", header = FALSE)))
+CT[CT == "False"] <- as.integer(0)
+CT[CT == " False"] <- as.integer(0)
+CT[CT == " True"] <- as.integer(1)
+CT[,1] <- as.numeric(as.character(CT[,1]))
+
+
+CT[,1] <- as.integer(CT[,1])
+CT[,2] <- as.integer(CT[,2])
+CT[,3] <- as.integer(CT[,3])
+CTD[CTD == "False"] <- 0
+CTD[CTD == " False"] <- 0
+CTD[CTD == " True"] <- 1
+CTD[,1] <- as.integer(CTD[,1])
+CTD[,2] <- as.integer(CTD[,2])
+CTD[,3] <- as.integer(CTD[,3])
+
+A <- cbind(accAW,accPC,accAWPC,accDAW,accDPC,accDAWPC, CT[,1], CT[,2], CT[,3], CTD[,1], CTD[,2], CTD[,3])
+
+(mcMat <- data.frame(matrix(ncol = 6, nrow = 6)))
+colnames(mcMat) <- c("AW","PC","AWPC","DAW","DPC","DAWPC")
+for (i in 7:12){
+  for (j in i:12){ if(i != j){
+    mcMat[i-6,j-6] <- p.adjust(mcnemar.test(f(A[,i], A[,j]))[3], method="BH", n=5)
+  }}
+}
+mcNemar_pvalues_Tree <- mcMat
+signif(mcNemar_pvalues_Tree,2)
+
+#### McNemar both models ####
+# With p-adjustment
+(mcMat <- data.frame(matrix(ncol = 12, nrow = 12)))
+colnames(mcMat) <- c("kAW","kPC","kAWPC","kDAW","kDPC","kDAWPC","tAW","tPC","tAWPC","tDAW","tDPC","tDAWPC")
+for (i in 1:12){
+  for (j in i:12){ if(i != j){
+    mcMat[i,j] <- p.adjust(mcnemar.test(f(A[,i], A[,j]))[3],n=11)
+  }}
+}
+mcNemar_pvalues_Both <- mcMat
+signif(mcNemar_pvalues_Both,2)
+
+p.adjust(mcMat)
+matrix(p.adjust(as.vector(mcMat)), method="BH", n=12)
+length(as.vector(mcMat))
+
+
+
+library(MASS)
+write.matrix(mcNemar_pvalues_Both,file="mcNemar_pvalues_Both.csv")
+write.matrix(mcNemar_pvalues_Tree,file="mcNemar_pvalues_Tree.csv")
 
 
 

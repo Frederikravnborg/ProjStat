@@ -133,3 +133,4 @@ print(y)
 res = y == flat_list
 print(res)
 print(np.mean(res) * 100)
+# %%
