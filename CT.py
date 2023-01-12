@@ -26,7 +26,7 @@ print(y, horse)
 X = np.array(X)
 #%%
 indices = np.zeros(len(y))
-i = 4
+i = 1
 
 horses = ["B1", "B2", "B3", "B4", "B5", "B6", "B7", "B9"]
 
@@ -35,6 +35,7 @@ for x in range(len(horse)):
         indices[x] = 1
 print(indices)
 X_train = np.transpose(X)[indices == 0]
+print(X_train)
 X_test = np.transpose(X)[indices != 0]
 
 y_train = np.transpose(y)[indices == 0]
