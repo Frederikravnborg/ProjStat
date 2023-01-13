@@ -2,9 +2,19 @@ setwd("/Users/beheard/Library/CloudStorage/OneDrive-DanmarksTekniskeUniversitet/
 setwd("/Users/frederikravnborg/Library/CloudStorage/OneDrive-DanmarksTekniskeUniversitet/DTU-Frederik’s MacBook Pro/ProjStat/Project, Group/ProjStat")
 
 data = read.table("horse_data23.txt")
+dDia <- data
+for (i in 1:85){
+  if(dDia$lameLeg[i] == "right:fore" || dDia$lameLeg[i] == "left:hind"){
+    dDia$lameLeg[i] <- "rflh"}
+  else if (dDia$lameLeg[i] == "left:fore" || dDia$lameLeg[i] == "right:hind"){
+    dDia$lameLeg[i] <- "lfrh"}
+}
+dDia$lameLeg <- as.factor(dDia$lameLeg)
+dDia$horse <- as.factor(dDia$horse)
+
 data$horse = as.factor(data$horse)
 data$lameLeg = as.factor(data$lameLeg)
-
+dDia
 
 ### DONT FUCK WITH THE COLORS! IT WORKS
 
@@ -18,3 +28,15 @@ legend("topleft", legend = c("left:fore", "left:hind", "none", "right:fore", "ri
 
 # Correlation of right:fore and left:hind
 plot(subset(data, lameLeg == "right:fore")$A, subset(data, lameLeg == "right:fore")$W)
+
+
+#Correlation of AW
+plot(dDia$A, dDia$W, col = dDia$lameLeg, main = "Correlation of A and W", xlab = "A", ylab = "W")
+legend("topleft", legend = c("lfrh", "none", "rflh"),fill=c(1,2,3))
+
+#Correlation of PC3-PC4
+plot(dDia$pc3, dDia$pc4, col = dDia$lameLeg, main = "Correlation of PC3 and PC4", xlab = "PC3", ylab = "PC4")
+legend("topleft", legend = c("lfrh", "none", "rflh"),fill=c(1,2,3))
+
+
+

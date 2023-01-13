@@ -28,8 +28,6 @@ shapiro.test(d$A) # pval = 0.005048
 shapiro.test(d$W) # pval = 0.1345
 shapiro.test(d$S) # pval = 0.379
 
-qqnorm(d$A)
-qqline(d$A)
 
 #### KNN AW ####
 # KNN with optimal K
@@ -67,6 +65,32 @@ for (K in 1:10){
     traincl <- subset(d, d$horse != horses[i])$lameLeg # train classes
     trainD <- cbind(subset(d, d$horse != horses[i])$pc3, subset(d, d$horse != horses[i])$pc4)
     testD  <- cbind(subset(d, d$horse == horses[i])$pc3, subset(d, d$horse == horses[i])$pc4)
+    classifier <- knn(train=trainD, test=testD, cl = traincl, k = K)
+    guess <- append(guess, classifier)
+    accPC <- c(accPC, as.integer(classifier == subset(d, d$horse == horses[i])$lameLeg))
+  }
+  accPCm[K,] <- accPC
+}
+
+accs <- c()
+for (i in 1:10) { accs <- c(accs, mean(accPCm[i,])) }
+(bestK <- which.max(accs))
+accPC <- accPCm[bestK,]
+(scorePC <- mean(accPC))
+PC_K <- bestK
+
+
+#### KNN PC ####
+# KNN with optimal K
+accPCm <- matrix(ncol=85, nrow=10)
+guessm <- matrix(ncol=85, nrow=10)
+for (K in 1:10){
+  accPC <- c()
+  guess <- c()
+  for (i in 1:8){
+    traincl <- subset(d, d$horse != horses[i])$lameLeg # train classes
+    trainD <- cbind(subset(d, d$horse != horses[i])$pc3)
+    testD  <- cbind(subset(d, d$horse == horses[i])$pc3)
     classifier <- knn(train=trainD, test=testD, cl = traincl, k = K)
     guess <- append(guess, classifier)
     accPC <- c(accPC, as.integer(classifier == subset(d, d$horse == horses[i])$lameLeg))
@@ -230,8 +254,8 @@ round(scorePC,3)
 round(scoreAWPC,3)
 round(scoreDAW,3)
 round(scoreDPC,3)
-round(scoreDAWPC,10)
-round(scoreDAWPC3,10)
+round(scoreDAWPC,3)
+
 
 #### McNemar ####
 # function to create f11, f01, f10, f00
@@ -258,12 +282,13 @@ for (i in 1:6){
   }}
 }
 mcNemar_pvalues_KNN <- mcMat
-signif(mcNemar_pvalues_KNN,3)
-dim(subset(d, horse=="B3"))
+signif(mcNemar_pvalues_KNN,2)
+
 
 #### McNemar Decision Tree ####
 (CT <- t(read.table("CT_res.csv", sep=",", header = FALSE)))
 (CTD <- t(read.table("CT_collapsed_res.csv", sep=",", header = FALSE)))
+
 # (CT <- data.frame(matrix(ncol=3,nrow=85)))
 # (CTD <- data.frame(matrix(ncol=3,nrow=85)))
 # CT[CTg == "False"] <- as.integer(0)
@@ -304,8 +329,8 @@ signif(mcNemar_pvalues_Both,2)
 
 
 library(MASS)
-write.matrix(mcNemar_pvalues_Both,file="mcNemar_pvalues_Both.csv")
-write.matrix(mcNemar_pvalues_Tree,file="mcNemar_pvalues_Tree.csv")
+write.matrix(mcNemar_pvalues_Both,file="mcNemar_pvalues_Both.csv", sep=",")
+write.matrix(mcNemar_pvalues_Tree,file="mcNemar_pvalues_Tree.csv", sep=",")
 
 
 
