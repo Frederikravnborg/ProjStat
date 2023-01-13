@@ -1,7 +1,7 @@
 AW PC AWPC DAW DPC DAWPC
-          NA 0.2208567245 0.0793066637 0.9521513191 0.4042779919 0.6779650063
-          NA           NA 1.0000000000 0.0342042922 0.0001817898 0.0007196493
-          NA           NA           NA 0.0069189562 0.0007196493 0.0012096640
-          NA           NA           NA           NA 1.0000000000 1.0000000000
-          NA           NA           NA           NA           NA 1.0000000000
-          NA           NA           NA           NA           NA           NA
+ NA   1   1 NaN   1   1
+ NA  NA   1   1 NaN   1
+ NA  NA  NA   1   1 NaN
+ NA  NA  NA  NA   1   1
+ NA  NA  NA  NA  NA   1
+ NA  NA  NA  NA  NA  NA

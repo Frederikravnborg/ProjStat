@@ -23,6 +23,14 @@ d$lameLeg <- as.factor(d$lameLeg)
 
 horses <- list("B1","B2","B3","B4","B5","B6","B7","B9")
 
+
+shapiro.test(d$A) # pval = 0.005048
+shapiro.test(d$W) # pval = 0.1345
+shapiro.test(d$S) # pval = 0.379
+
+qqnorm(d$A)
+qqline(d$A)
+
 #### KNN AW ####
 # KNN with optimal K
 accAWm <- matrix(ncol=85, nrow=10)
@@ -177,6 +185,34 @@ accDAWPC <- accDAWPCm[bestK,]
 DAWPC_K <- bestK
 
 
+#### KNN DAWPC3 ####
+# Model, hvor PC4 er fjernet
+d <- dDia
+# KNN with optimal K
+accDAWPC3m <- matrix(ncol=85, nrow=10)
+guessm <- matrix(ncol=85, nrow=10)
+for (K in 1:10){
+  accDAWPC3 <- c()
+  guess <- c()
+  for (i in 1:8){
+    traincl <- subset(d, d$horse != horses[i])$lameLeg # train classes
+    trainD <- cbind(subset(d, d$horse != horses[i])$A, subset(d, d$horse != horses[i])$W, subset(d, d$horse != horses[i])$pc3)
+    testD  <- cbind(subset(d, d$horse == horses[i])$A, subset(d, d$horse == horses[i])$W, subset(d, d$horse == horses[i])$pc3)
+    classifier <- knn(train=trainD, test=testD, cl = traincl, k = K)
+    guess <- append(guess, classifier)
+    accDAWPC3 <- c(accDAWPC3, as.integer(classifier == subset(d, d$horse == horses[i])$lameLeg))
+  }
+  accDAWPC3m[K,] <- accDAWPC3
+}
+
+accs <- c()
+for (i in 1:10) { accs <- c(accs, mean(accDAWPC3m[i,])) }
+(bestK <- which.max(accs))
+accDAWPC3 <- accDAWPC3m[bestK,]
+(scoreDAWPC3 <- mean(accDAWPC3))
+DAWPC3_K <- bestK
+
+
 
 #### Summary ####
 # K-values
@@ -186,6 +222,7 @@ AWPC_K
 DAW_K
 DPC_K
 DAWPC_K
+DAWPC3_K
 
 # Accuracies
 round(scoreAW,3)
@@ -193,7 +230,8 @@ round(scorePC,3)
 round(scoreAWPC,3)
 round(scoreDAW,3)
 round(scoreDPC,3)
-round(scoreDAWPC,3)
+round(scoreDAWPC,10)
+round(scoreDAWPC3,10)
 
 #### McNemar ####
 # function to create f11, f01, f10, f00
@@ -221,30 +259,25 @@ for (i in 1:6){
 }
 mcNemar_pvalues_KNN <- mcMat
 signif(mcNemar_pvalues_KNN,3)
+dim(subset(d, horse=="B3"))
 
 #### McNemar Decision Tree ####
 (CT <- t(read.table("CT_res.csv", sep=",", header = FALSE)))
 (CTD <- t(read.table("CT_collapsed_res.csv", sep=",", header = FALSE)))
-CT[CT == "False"] <- as.integer(0)
-CT[CT == " False"] <- as.integer(0)
-CT[CT == " True"] <- as.integer(1)
-CT[,1] <- as.numeric(as.character(CT[,1]))
-
-
-CT[,1] <- as.integer(CT[,1])
-CT[,2] <- as.integer(CT[,2])
-CT[,3] <- as.integer(CT[,3])
-CTD[CTD == "False"] <- 0
-CTD[CTD == " False"] <- 0
-CTD[CTD == " True"] <- 1
-CTD[,1] <- as.integer(CTD[,1])
-CTD[,2] <- as.integer(CTD[,2])
-CTD[,3] <- as.integer(CTD[,3])
+# (CT <- data.frame(matrix(ncol=3,nrow=85)))
+# (CTD <- data.frame(matrix(ncol=3,nrow=85)))
+# CT[CTg == "False"] <- as.integer(0)
+# CT[CTg == " False"] <- as.integer(0)
+# CT[CTg == " True"] <- as.integer(1)
+# CTD[CTDg == "False"] <- 0
+# CTD[CTDg == " False"] <- 0
+# CTD[CTDg == " True"] <- 1
 
 A <- cbind(accAW,accPC,accAWPC,accDAW,accDPC,accDAWPC, CT[,1], CT[,2], CT[,3], CTD[,1], CTD[,2], CTD[,3])
 
 (mcMat <- data.frame(matrix(ncol = 6, nrow = 6)))
 colnames(mcMat) <- c("AW","PC","AWPC","DAW","DPC","DAWPC")
+rownames(mcMat) <- c("AW","PC","AWPC","DAW","DPC","DAWPC")
 for (i in 7:12){
   for (j in i:12){ if(i != j){
     mcMat[i-6,j-6] <- p.adjust(mcnemar.test(f(A[,i], A[,j]))[3], method="BH", n=5)
@@ -253,10 +286,12 @@ for (i in 7:12){
 mcNemar_pvalues_Tree <- mcMat
 signif(mcNemar_pvalues_Tree,2)
 
+
 #### McNemar both models ####
 # With p-adjustment
 (mcMat <- data.frame(matrix(ncol = 12, nrow = 12)))
 colnames(mcMat) <- c("kAW","kPC","kAWPC","kDAW","kDPC","kDAWPC","tAW","tPC","tAWPC","tDAW","tDPC","tDAWPC")
+rownames(mcMat) <- c("kAW","kPC","kAWPC","kDAW","kDPC","kDAWPC","tAW","tPC","tAWPC","tDAW","tDPC","tDAWPC")
 for (i in 1:12){
   for (j in i:12){ if(i != j){
     mcMat[i,j] <- p.adjust(mcnemar.test(f(A[,i], A[,j]))[3],n=11)
@@ -265,9 +300,6 @@ for (i in 1:12){
 mcNemar_pvalues_Both <- mcMat
 signif(mcNemar_pvalues_Both,2)
 
-p.adjust(mcMat)
-matrix(p.adjust(as.vector(mcMat)), method="BH", n=12)
-length(as.vector(mcMat))
 
 
 
