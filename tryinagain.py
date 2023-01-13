@@ -16,17 +16,32 @@ params = {'max_depth': [2,4,6,8,10,12,14,16],
 #%%
 data = pd.read_table("horse_data23.txt", header = 0)
 
-X = pd.DataFrame((data["pc3"], data["pc4"]))
+#%%
+lLeg = np.array(data["lameLeg"])
+for i in range(1, len(lLeg)):
+    if lLeg[i] == "right:fore" or lLeg[i] == "left:hind":
+        lLeg[i] = "rflh"
+
+    elif lLeg[i] == "left:fore" or lLeg[i] == "right:hind":
+        lLeg[i] = "lfrh"
+
+data["diag"] = lLeg
+
+#%%
+
+#X = pd.DataFrame((data["A"], data["W"]))
+#X = pd.DataFrame((data["pc3"], data["pc4"]))
+X = pd.DataFrame((data["A"], data["W"], data["pc3"], data["pc4"]))
+
 horse = pd.factorize(data["horse"])
 y = pd.factorize(data["lameLeg"])
-print(y)
 
 X = np.array(X)
 horse = np.array(horse[0])
 y = np.array(y[0])
 
 #%%
-i = 2
+i = 1
 indices = np.zeros(len(y))
 
 for x in range(len(horse)):
@@ -39,6 +54,11 @@ X_test = np.transpose(X)[indices != 0]
 
 y_train = y[indices == 0]
 y_test = y[indices != 0]
+
+print(np.shape(X_train))
+print(np.shape(X_test))
+print(np.shape(y_train))
+print(np.shape(y_test))
 
 #%%
 clf = tree.DecisionTreeClassifier(random_state=0)
@@ -55,8 +75,8 @@ print(gcv.best_params_)
 
 #%%
 bdepth = 6
-bleaf = 2
-bsplit = 7
+bleaf = 3
+bsplit = 2
 
 #%%
 model = tree.DecisionTreeClassifier(random_state=0, max_depth=bdepth, min_samples_leaf= bleaf, min_samples_split = bsplit)
@@ -91,22 +111,17 @@ plt.show()
 
 
 #%%
-chosen_alpha = 0.1
+chosen_alpha = 0.0325
 b_model = tree.DecisionTreeClassifier(random_state=0, ccp_alpha=chosen_alpha, max_depth=bdepth, min_samples_leaf= bleaf, min_samples_split = bsplit)
 b_fit = b_model.fit(X_train, y_train)
 tree.plot_tree(b_fit)
 
 y_pred = b_model.predict(X_test)
-#%%
-#clf = tree.DecisionTreeClassifier(random_state=0)
-#fit = clf.fit(X_train, y_train)
-#tree.plot_tree(fit)
-#print("plot")
 
 #%%
 pred = fit.predict(X_test)
-print(f'Test score {accuracy_score(pred,y_test)}')
-cm = confusion_matrix(y_test, pred)
+print(f'Test score {accuracy_score(y_pred,y_test)}')
+cm = confusion_matrix(y_test, y_pred)
 print(cm)
 
 #%%
@@ -116,23 +131,59 @@ for i in range(8):
     for x in range(len(horse)):
         if horse[x] == i:
             indices[x] = 1
-    b_model = tree.DecisionTreeClassifier(random_state=0, ccp_alpha=chosen_alpha, max_depth=bdepth, min_samples_leaf= bleaf, min_samples_split = bsplit)
     X_train = np.transpose(X)[indices == 0]
     X_test = np.transpose(X)[indices != 0]
 
     y_train = y[indices == 0]
     y_test = y[indices != 0]
-    fit = b_model.fit(X_train, y_train)
+
+    clf =  tree.DecisionTreeClassifier(random_state=0, ccp_alpha=chosen_alpha)
+    gcv = GridSearchCV(estimator=clf, param_grid=params)
+    fit = gcv.fit(X_train, y_train)
+    model = gcv.best_estimator_
+    
+    fit = model.fit(X_train, y_train)
     preds.append(fit.predict(X_test))
 #%%
 #print(preds)
+alphas.append(chosen_alpha)
+flatlist = []
+for sublist in preds:
+    for element in sublist:
+        flatlist.append(element)
 
-flat = np.array(preds)
-flat.flatten()
-print(flat)
-#print(flat_list)
-#print(y)
-res = y == flat
-print(res*1)
+res = y == flatlist
+res = res * 1
+print(res)
 print(np.mean(res) * 100)
+
+results.append(res)
+
+#%%
+alphas.append(chosen_alpha)
+flatlist = []
+for sublist in preds:
+    for element in sublist:
+        flatlist.append(element)
+
+resdia = y == flatlist
+resdia = resdia * 1
+print(resdia)
+print(np.mean(res) * 100)
+
+results.append(res)
+
 # %%
+
+np.savetxt("CT_res.csv", 
+           results,
+           delimiter =", ", 
+           fmt ='% s')
+
+#%%
+np.savetxt("CT_collapsed_res.csv", 
+           results,
+           delimiter =", ", 
+           fmt ='% s')
+
+#%%
