@@ -16,6 +16,9 @@ fit <- lm(d$S ~ H); anova(fit)
 # If horse has a significant effect on W
 fit <- lm(d$W ~ H); anova(fit)
 
+
+
+
 #### Goal 2 ####
 d2 <- d
 for (i in 1:dim(d)[1]){

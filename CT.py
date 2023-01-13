@@ -25,7 +25,6 @@ print(y, horse)
 
 X = np.array(X)
 #%%
-
 horses = ["B1", "B2", "B3", "B4", "B5", "B6", "B7", "B9"]
 
 for x in range(len(horse)):

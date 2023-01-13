@@ -156,34 +156,3 @@ res = y == flatlist
 res = res * 1
 print(res)
 print(np.mean(res) * 100)
-
-results.append(res)
-
-#%%
-alphas.append(chosen_alpha)
-flatlist = []
-for sublist in preds:
-    for element in sublist:
-        flatlist.append(element)
-
-resdia = y == flatlist
-resdia = resdia * 1
-print(resdia)
-print(np.mean(res) * 100)
-
-results.append(res)
-
-# %%
-
-np.savetxt("CT_res.csv", 
-           results,
-           delimiter =", ", 
-           fmt ='% s')
-
-#%%
-np.savetxt("CT_collapsed_res.csv", 
-           results,
-           delimiter =", ", 
-           fmt ='% s')
-
-#%%
