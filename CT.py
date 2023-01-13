@@ -25,9 +25,6 @@ print(y, horse)
 
 X = np.array(X)
 #%%
-indices = np.zeros(len(y))
-i = 1
-
 horses = ["B1", "B2", "B3", "B4", "B5", "B6", "B7", "B9"]
 
 for x in range(len(horse)):
@@ -67,7 +64,7 @@ print(cm)
 #%%
 # Post-pruning
 clf = tree.DecisionTreeClassifier(random_state=0)
-path = clf.cost_complexity_pruning_path(X_train, y_train)
+path = model.cost_complexity_pruning_path(X_train, y_train)
 ccp_alphas, impurities = path.ccp_alphas, path.impurities
 clfs = []
 
