@@ -29,14 +29,16 @@ legend("topleft", legend = c("left:fore", "left:hind", "none", "right:fore", "ri
 # Correlation of right:fore and left:hind
 plot(subset(data, lameLeg == "right:fore")$A, subset(data, lameLeg == "right:fore")$W)
 
-
+par(mfrow=c(1,2))
 #Correlation of AW
-plot(dDia$A, dDia$W, col = dDia$lameLeg, main = "Correlation of A and W", xlab = "A", ylab = "W")
-legend("topleft", legend = c("lfrh", "none", "rflh"),fill=c(1,2,3))
+library("ggplot2")
+require(gridExtra)
 
-#Correlation of PC3-PC4
-plot(dDia$pc3, dDia$pc4, col = dDia$lameLeg, main = "Correlation of PC3 and PC4", xlab = "PC3", ylab = "PC4")
-legend("topleft", legend = c("lfrh", "none", "rflh"),fill=c(1,2,3))
+p1 <- ggplot(dDia,aes(x=A, y=W, group=lameLeg)) + geom_point() + geom_point(aes(color=lameLeg)) + scale_color_manual(values=c(6,3,7) )
 
+#Correlation of PC
+p2 <- ggplot(dDia,aes(x=pc3, y=pc4, group=lameLeg)) + geom_point() + geom_point(aes(color=lameLeg)) + scale_color_manual(values=c(6,3,7) )
+
+grid.arrange(p1, p1, ncol=2)
 
 
