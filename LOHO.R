@@ -322,7 +322,7 @@ signif(mcNemar_pvalues_Both,2)
 
 signif(mcNemar_pvalues_KNN,2)
 signif(mcNemar_pvalues_Tree,2)
-signif(mcNemar_pvalues_Both,2)
+signif(mcNemar_pvalues_Both,3)
 
 library(MASS)
 write.matrix(signif(mcNemar_pvalues_Both,2),file="mcNemar_pvalues_Both.csv", sep=",")
