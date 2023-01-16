@@ -46,6 +46,7 @@ pc4 = data$pc4
 ```
 
 ### Plots:
+
 ```{r}
 #png('QQplots.png', height = 480, width = 480*2)
 par(mfrow = c(1,3))
@@ -57,7 +58,6 @@ qqline(W)
 qqnorm(S, main = "QQPlot: S")
 qqline(S)
 ```
-
 
 ```{r}
 A1 = rep(NA, length(data$A))
@@ -207,13 +207,13 @@ legend(x = "topleft", pch = c(1,1,2,2,3), text.font = 2,
 ```
 
 ### P-values:
+
 ```{r}
 A_norm = (A-mean(A))/sd(A)
 W_norm = (W-mean(W))/sd(W)
 PC3_norm = (pc3-mean(pc3))/sd(pc3)
 PC4_norm = (pc4-mean(pc4))/sd(pc4)
 ```
-
 
 ```{r}
 horses = as.factor(horse)
@@ -373,8 +373,6 @@ m_at = table(train_A, pred)
 m_at
 ```
 
-
-
 ```{r}
 par(mfrow = c(2,4))
 hist(trainError_AW)
@@ -387,7 +385,6 @@ boxplot(testError_AW)
 boxplot(trainError_PC34)
 boxplot(testError_AW)
 ```
-
 
 ```{r}
 #png("baselineplots.png")
@@ -404,7 +401,6 @@ boxplot(MSE_PC3)
 boxplot(MSE_PC4)
 ```
 
-
 ```{r}
 par(mfrow=(c(1,2)))
 boxplot(A_norm, W_norm)
@@ -414,4 +410,3 @@ par(mfrow=(c(1,2)))
 plot(A_norm, W_norm)
 plot(PC3_norm, PC4_norm)
 ```
-
