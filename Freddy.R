@@ -1,12 +1,14 @@
 
 setwd("/Users/beheard/Library/CloudStorage/OneDrive-DanmarksTekniskeUniversitet/4. Semester/02445_ProjectStatisticalEvaluation/Project")
+setwd("/Users/frederikravnborg/Library/CloudStorage/OneDrive-DanmarksTekniskeUniversitet/DTU-Frederik’s MacBook Pro/ProjStat/Project, Group/ProjStat")
+
 
 #setwd("/Users/frederikravnborg/Library/CloudStorage/OneDrive-DanmarksTekniskeUniversitet/DTU-Frederik’s MacBook Pro/ProjStat/Project, Group")
 (d <- read.table("horse_data23.txt", header=TRUE, as.is=TRUE))
 
 #### Initial Plots ####
 
-
+# d$W <- log( (d$W-mean(d$W))/sd(d$W) ) + 1e-3
 
 #### Goal 1 ####
 (H <- as.factor(d$horse))
@@ -18,26 +20,36 @@ hist(d$W, breaks = 40)
 par(mfrow = c(1,3))
 
 # If horse has a significant effect on A
-fit <- lm(d$A ~ H)
-anova(fit)
-resA = resid(fit)
+fitA <- lm(d$A ~ H)
+anova(fitA)
+resA = resid(fitA)
 qqnorm(resA, main = "Q-Q plot of residuals of A")
 qqline(resA)
 
 #plot(fit)
 
 # If horse has a significant effect on S
-fit <- lm(d$S ~ H); anova(fit)
-#plot(fit)
-resS = resid(fit)
+fitS <- lm(d$S ~ H); anova(fitS)
+resS = resid(fitS)
 qqnorm(resS, main = "Q-Q plot of residuals of S")
 qqline(resS)
 
 # If horse has a significant effect on W
-fit <- lm(d$W ~ H); anova(fit)
-resW = resid(fit)
+fitW <- lm(d$W ~ H); anova(fitW)
+resW = resid(fitW)
 qqnorm(resW,main = "Q-Q plot of residuals of W")
 qqline(resW)
+
+par(mfrow=c(1,3))
+plot(fitA,1, main="Symmetry score A")
+plot(fitS,1, main="Symmetry score S")
+plot(fitW,1, main="Symmetry score W")
+
+boxplot(resA, main="Residuals of A")
+boxplot(resS, main="Residuals of S")
+boxplot(resW, main="Residuals of W")
+
+# shapiro.test(resS)
 
 
 hist(resA, breaks = 40)
