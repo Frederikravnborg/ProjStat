@@ -49,9 +49,6 @@ boxplot(resA, main="Residuals of A")
 boxplot(resS, main="Residuals of S")
 boxplot(resW, main="Residuals of W")
 
-# shapiro.test(resS)
-
-
 hist(resA, breaks = 40)
 hist(resS, breaks = 40)
 hist(resW, breaks = 40)
