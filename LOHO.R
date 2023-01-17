@@ -187,19 +187,22 @@ d <- dDia
 # KNN with optimal K
 accDAWPCm <- matrix(ncol=85, nrow=10)
 guessm <- matrix(ncol=85, nrow=10)
-for (K in 1:10){
+#for (K in 1:10){
+K <- 1
   accDAWPC <- c()
   guess <- c()
+  true <- c()
   for (i in 1:8){
     traincl <- subset(d, d$horse != horses[i])$lameLeg # train classes
     trainD <- cbind(subset(d, d$horse != horses[i])$A, subset(d, d$horse != horses[i])$W, subset(d, d$horse != horses[i])$pc3, subset(d, d$horse != horses[i])$pc4)
     testD  <- cbind(subset(d, d$horse == horses[i])$A, subset(d, d$horse == horses[i])$W, subset(d, d$horse == horses[i])$pc3, subset(d, d$horse == horses[i])$pc4)
     classifier <- knn(train=trainD, test=testD, cl = traincl, k = K)
     guess <- append(guess, classifier)
+    true <- append(true, subset(d, d$horse == horses[i])$lameLeg)
     accDAWPC <- c(accDAWPC, as.integer(classifier == subset(d, d$horse == horses[i])$lameLeg))
   }
   accDAWPCm[K,] <- accDAWPC
-}
+#}
 
 accs <- c()
 for (i in 1:10) { accs <- c(accs, mean(accDAWPCm[i,])) }
@@ -208,33 +211,33 @@ accDAWPC <- accDAWPCm[bestK,]
 (scoreDAWPC <- mean(accDAWPC))
 DAWPC_K <- bestK
 
-
-#### KNN DAWPC3 ####
-# Model, hvor PC4 er fjernet
-d <- dDia
-# KNN with optimal K
-accDAWPC3m <- matrix(ncol=85, nrow=10)
-guessm <- matrix(ncol=85, nrow=10)
-for (K in 1:10){
-  accDAWPC3 <- c()
-  guess <- c()
-  for (i in 1:8){
-    traincl <- subset(d, d$horse != horses[i])$lameLeg # train classes
-    trainD <- cbind(subset(d, d$horse != horses[i])$A, subset(d, d$horse != horses[i])$W, subset(d, d$horse != horses[i])$pc3)
-    testD  <- cbind(subset(d, d$horse == horses[i])$A, subset(d, d$horse == horses[i])$W, subset(d, d$horse == horses[i])$pc3)
-    classifier <- knn(train=trainD, test=testD, cl = traincl, k = K)
-    guess <- append(guess, classifier)
-    accDAWPC3 <- c(accDAWPC3, as.integer(classifier == subset(d, d$horse == horses[i])$lameLeg))
-  }
-  accDAWPC3m[K,] <- accDAWPC3
-}
-
-accs <- c()
-for (i in 1:10) { accs <- c(accs, mean(accDAWPC3m[i,])) }
-(bestK <- which.max(accs))
-accDAWPC3 <- accDAWPC3m[bestK,]
-(scoreDAWPC3 <- mean(accDAWPC3))
-DAWPC3_K <- bestK
+guessm
+# #### KNN DAWPC3 ####
+# # Model, hvor PC4 er fjernet
+# d <- dDia
+# # KNN with optimal K
+# accDAWPC3m <- matrix(ncol=85, nrow=10)
+# guessm <- matrix(ncol=85, nrow=10)
+# for (K in 1:10){
+#   accDAWPC3 <- c()
+#   guess <- c()
+#   for (i in 1:8){
+#     traincl <- subset(d, d$horse != horses[i])$lameLeg # train classes
+#     trainD <- cbind(subset(d, d$horse != horses[i])$A, subset(d, d$horse != horses[i])$W, subset(d, d$horse != horses[i])$pc3)
+#     testD  <- cbind(subset(d, d$horse == horses[i])$A, subset(d, d$horse == horses[i])$W, subset(d, d$horse == horses[i])$pc3)
+#     classifier <- knn(train=trainD, test=testD, cl = traincl, k = K)
+#     guess <- append(guess, classifier)
+#     accDAWPC3 <- c(accDAWPC3, as.integer(classifier == subset(d, d$horse == horses[i])$lameLeg))
+#   }
+#   accDAWPC3m[K,] <- accDAWPC3
+# }
+# 
+# accs <- c()
+# for (i in 1:10) { accs <- c(accs, mean(accDAWPC3m[i,])) }
+# (bestK <- which.max(accs))
+# accDAWPC3 <- accDAWPC3m[bestK,]
+# (scoreDAWPC3 <- mean(accDAWPC3))
+# DAWPC3_K <- bestK
 
 
 
@@ -277,7 +280,7 @@ A <- cbind(accAW,accPC,accAWPC,accDAW,accDPC,accDAWPC)
 colnames(mcMat) <- c("AW","PC","AWPC","DAW","DPC","DAWPC")
 rownames(mcMat) <- c("AW","PC","AWPC","DAW","DPC","DAWPC")
 for (i in 1:6){
-  for (j in i:6){ if(i != j){
+  for (j in i:6){ if(i != j) I {
     mcMat[i,j] <- p.adjust(mcnemar.test(f(A[,i], A[,j]))[3], method="BH", n=15)
   }}
 }
@@ -335,7 +338,20 @@ write.matrix(mcNemar_pvalues_KNN,file="mcNemar_pvalues_KNN.csv", sep=",")
 
 
 
+(cm <- confusionMatrix(data=guess, reference = true)$table)
+(cm[1,1] + cm[2,2] + cm[3,3]) / sum(cm)
 
+(cm <- data.frame(matrix(c(27,3,0,0,20,3,0,2,30), nrow=3)))
+colnames(cm) <- c("lfrh", "none", "rflh")
+rownames(cm) <- c("lfrh", "none", "rflh")
+
+library(cvms)
+library(ggplot2)
+plot_confusion_matrix(
+  cm,
+  target_col = "Actual",
+  prediction_col = "Prediction",
+  counts_col = "N")
 
 
 

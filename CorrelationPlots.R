@@ -34,10 +34,10 @@ par(mfrow=c(1,2))
 library("ggplot2")
 require(gridExtra)
 
-p1 <- ggplot(dDia,aes(x=A, y=W, group=lameLeg)) + geom_point() + geom_point(aes(color=lameLeg)) + scale_color_manual(values=c(6,3,7) )
+p1 <- ggplot(dDia,aes(x=A, y=W, group=lameLeg)) + geom_point() + geom_point(aes(color=lameLeg)) + scale_color_manual(values=c(6,3,7) ) + ggtitle("Correlation of A and W")
 
 #Correlation of PC
-p2 <- ggplot(dDia,aes(x=pc3, y=pc4, group=lameLeg)) + geom_point() + geom_point(aes(color=lameLeg)) + scale_color_manual(values=c(6,3,7) )
+p2 <- ggplot(dDia,aes(x=pc3, y=pc4, group=lameLeg)) + geom_point() + geom_point(aes(color=lameLeg)) + scale_color_manual(values=c(6,3,7) ) + ggtitle("Correlation of PC3 and PC4")
 
 grid.arrange(p1, p2, ncol=2)
 
